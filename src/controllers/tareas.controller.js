@@ -7,7 +7,15 @@ export const listarTareas = async (req, res) => {
     return res.json(resultado.rows);
 
 }
-export const listarTarea = (req, res) => res.send('Obteniendo tarea unica');
+export const listarTarea =async (req, res) => {
+    const resultado = await pool.query('SELECT * FROM tareas WHERE ID = $1', [req.params.id]);
+    if (resultado.rowCount === 0){
+        return res.status(404).json({
+            mesagge: 'La tarea no existe'
+        });
+    }
+    return res.json(resultado.rows[0]);
+}
 
 export const crearTarea = async (req, res, next) => {
     const { titulo, descripcion } = req.body;
