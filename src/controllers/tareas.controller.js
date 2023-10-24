@@ -7,9 +7,9 @@ export const listarTareas = async (req, res) => {
     return res.json(resultado.rows);
 
 }
-export const listarTarea =async (req, res) => {
+export const listarTarea = async (req, res) => {
     const resultado = await pool.query('SELECT * FROM tareas WHERE ID = $1', [req.params.id]);
-    if (resultado.rowCount === 0){
+    if (resultado.rowCount === 0) {
         return res.status(404).json({
             mesagge: 'La tarea no existe'
         });
@@ -40,15 +40,31 @@ export const crearTarea = async (req, res, next) => {
     }
 }
 
-    export const actualizarTarea = (req, res) => res.send('Actualizando tarea unica');
+export const actualizarTarea = async (req, res) => {
+    const { titulo, descripcion } = req.body;
+    const id = req.params.id;
+    const result = await pool.query('UPDATE tareas SET titulo = $1, descripcion = $2 WHERE id = $3 RETURNING *', [titulo, descripcion, id]);
 
-    export const eliminarTarea = async(req, res) => {
-        const resultado = await pool.query('DELETE FROM tareas WHERE id = $1', [req.params.id]);
-        if (resultado.rowCount === 0){
-            return res.status(404).json({
-                mesagge: 'No existe una tarea con ese ID'
-            });
-        }
-
-        return res.sendStatus(204);
+    if (result.rowCount === 0) {
+        return res.status(404).json({
+            mesagge: 'No existe una tarea con ese ID'
+        });
     }
+    return res.json(result.rows[0]);
+
+
+}
+
+
+
+
+export const eliminarTarea = async (req, res) => {
+    const resultado = await pool.query('DELETE FROM tareas WHERE id = $1', [req.params.id]);
+    if (resultado.rowCount === 0) {
+        return res.status(404).json({
+            mesagge: 'No existe una tarea con ese ID'
+        });
+    }
+
+    return res.sendStatus(204);
+}
